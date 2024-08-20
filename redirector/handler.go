@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"github.com/julienschmidt/httprouter"
+	"github.com/jxskiss/base62"
 
 	// Import the config package
 	"github.com/exhibit-io/redirector/config"
@@ -52,8 +53,8 @@ func CreateRedirectURL(w http.ResponseWriter, r *http.Request, _ httprouter.Para
 		return
 	}
 
-	counter := int(rdb.IncrBy(ctx, "redirector:counter", 1).Val())
-	new_url := fmt.Sprintf("%09s", toBase62(int64(counter)))
+	counter := uint64(rdb.IncrBy(ctx, "redirector:counter", 1).Val())
+	new_url := fmt.Sprintf("%09s", string(base62.FormatUint(counter)))
 
 	// Store the URL in Redis
 	rdb.Set(ctx, "redirector:url:"+new_url+":l", body.URL, 0).Err()
@@ -96,13 +97,4 @@ func HandleURLRedirection(w http.ResponseWriter, r *http.Request, ps httprouter.
 
 	http.Redirect(w, r, url, http.StatusFound)
 	log.Printf("<< %s: %s %d", ps.ByName("url"), url, visits)
-}
-
-func toBase62(n int64) string {
-	var result []byte
-	for n > 0 {
-		result = append(result, alphabet[n%62])
-		n /= 62
-	}
-	return string(result)
 }

@@ -16,10 +16,6 @@ import (
 	"github.com/exhibit-io/redirector/config"
 )
 
-const (
-	alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-)
-
 var (
 	ctx = context.Background()
 	rdb *redis.Client

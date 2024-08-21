@@ -31,7 +31,7 @@ func Init(config *config.Config) {
 		log.Fatal("Failed to connect to Redis")
 		panic("Failed to connect to Redis")
 	}
-	uri = config.Redirector.GetURI()
+	uri = config.Redirector.Public_url
 	log.Println("Connected to Redis on " + config.Redis.GetAddr())
 
 }

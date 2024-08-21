@@ -61,7 +61,7 @@ func CreateRedirectURL(w http.ResponseWriter, r *http.Request, _ httprouter.Para
 		"url": uri + "/" + new_url,
 	}
 	json.NewEncoder(w).Encode(response)
-	log.Printf(">> %s: %s %d", body.URL, new_url, counter)
+	log.Printf(">> %s %s %d", body.URL, new_url, counter)
 }
 
 func GetAllRedirectURLs(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {

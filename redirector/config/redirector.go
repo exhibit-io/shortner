@@ -6,6 +6,7 @@ type RedirectorConfig struct {
 	Schema string
 	Host   string
 	Port   string
+	Public_url string
 }
 
 func (t RedirectorConfig) GetAddr() string {
@@ -21,5 +22,6 @@ func LoadRedirectorConfig() RedirectorConfig {
 		Schema: getEnv("SCHEMA", "http"),
 		Host:   getEnv("HOST", "localhost"),
 		Port:   getEnv("PORT", "8080"),
+		Public_url: getEnv("PUBLIC_URL", GetURI()),
 	}
 }

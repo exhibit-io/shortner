@@ -3,10 +3,10 @@ package config
 import "fmt"
 
 type RedirectorConfig struct {
-	Schema string
-	Host   string
-	Port   string
-	Public_url string
+	Schema    string
+	Host      string
+	Port      string
+	PublicURL string // Go naming convention uses CamelCase for struct fields
 }
 
 func (t RedirectorConfig) GetAddr() string {
@@ -18,10 +18,14 @@ func (t RedirectorConfig) GetURI() string {
 }
 
 func LoadRedirectorConfig() RedirectorConfig {
-	return RedirectorConfig{
+	config := RedirectorConfig{
 		Schema: getEnv("SCHEMA", "http"),
 		Host:   getEnv("HOST", "localhost"),
 		Port:   getEnv("PORT", "8080"),
-		Public_url: getEnv("PUBLIC_URL", GetURI()),
 	}
+
+	// Set the PublicURL field after the object is initialized
+	config.PublicURL = getEnv("PUBLIC_URL", config.GetURI())
+
+	return config
 }

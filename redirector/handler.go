@@ -50,18 +50,19 @@ func CreateRedirectURL(w http.ResponseWriter, r *http.Request, _ httprouter.Para
 	}
 
 	counter := uint64(rdb.IncrBy(ctx, "redirector:counter", 1).Val())
-	new_url := fmt.Sprintf("%09s", string(base62.FormatUint(counter)))
+	fragment := fmt.Sprintf("%09s", string(base62.FormatUint(counter)))
 
 	// Store the URL in Redis
-	rdb.Set(ctx, "redirector:url:"+new_url+":l", body.URL, 0).Err()
+	rdb.Set(ctx, "redirector:url:"+fragment+":l", body.URL, 0).Err()
 
 	// Respond with a success message
 	w.WriteHeader(http.StatusOK)
 	response := map[string]string{
-		"url": uri + "/" + new_url,
+		"fragment": fragment,
+		"url":      uri + "/" + fragment,
 	}
 	json.NewEncoder(w).Encode(response)
-	log.Printf(">> %s %s %d", body.URL, new_url, counter)
+	log.Printf(">> %s %s %d", body.URL, response["url"], counter)
 }
 
 func GetAllRedirectURLs(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {

@@ -6,7 +6,7 @@ type RedirectorConfig struct {
 	Schema    string
 	Host      string
 	Port      string
-	PublicURL string // Go naming convention uses CamelCase for struct fields
+	PublicURL string
 }
 
 func (t RedirectorConfig) GetAddr() string {

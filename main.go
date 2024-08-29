@@ -29,7 +29,10 @@ func main() {
 
 	// Setup middlewares.  For this we're basically adding:
 	//	- Support for CORS to make JSONP work.
-	handler := cors.Default().Handler(router)
+	handler := cors.New(cors.Options{
+		AllowCredentials: config.Cors.AllowCredentials,
+		AllowedOrigins:   config.Cors.AllowedOrigins,
+	}).Handler(router)
 
 	log.Println("Starting HTTP server on:", config.Redirector.GetAddr())
 	log.Fatal(http.ListenAndServe(config.Redirector.GetAddr(), handler))

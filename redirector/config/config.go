@@ -6,6 +6,7 @@ import "github.com/joho/godotenv"
 type Config struct {
 	Redis      RedisConfig
 	Redirector RedirectorConfig
+	Cors       CorsConfig
 }
 
 // LoadConfig loads the configuration from environment variables.
@@ -14,5 +15,6 @@ func LoadConfig() *Config {
 	return &Config{
 		Redis:      LoadRedisConfig(),
 		Redirector: LoadRedirectorConfig(),
+		Cors:       LoadCorsConfig(),
 	}
 }

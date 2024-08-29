@@ -20,7 +20,7 @@ func (t RedirectorConfig) GetURI() string {
 func LoadRedirectorConfig() RedirectorConfig {
 	config := RedirectorConfig{
 		Schema: getEnv("SCHEMA", "http"),
-		Host:   getEnv("HOST", "localhost"),
+		Host:   getEnv("HOST", "0.0.0.0"),
 		Port:   getEnv("PORT", "8080"),
 	}
 

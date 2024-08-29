@@ -41,6 +41,12 @@ type CreateRedirectURLBody struct {
 	ExpiresIn int64  `json:"expiresIn"`
 }
 
+type RedirectObject struct {
+	Fragment  string `json:"fragment"`
+	URL       string `json:"url"`
+	ExpiresIn int64  `json:"expiresIn"`
+}
+
 func CreateRedirectURL(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	var body CreateRedirectURLBody
 	err := json.NewDecoder(r.Body).Decode(&body)
@@ -74,12 +80,18 @@ func GetAllRedirectURLs(w http.ResponseWriter, r *http.Request, _ httprouter.Par
 
 	// Respond with a list of all redirect URLs
 	w.WriteHeader(http.StatusOK)
-	response := make(map[string]string)
+	response := []RedirectObject{}
 	for _, key := range keys {
 		url := rdb.Get(ctx, key).Val()
-		response[strings.Split(key, ":")[2]] = url
+		response = append(response, RedirectObject{
+			Fragment:  strings.Split(key, ":")[2],
+			URL:       url,
+			ExpiresIn: -1,
+		})
 	}
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, fmt.Sprintf("Could not encode response: %v", err), http.StatusInternalServerError)
+	}
 }
 
 func HandleURLRedirection(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {

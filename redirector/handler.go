@@ -44,6 +44,7 @@ type CreateRedirectURLBody struct {
 type RedirectObject struct {
 	Fragment  string `json:"fragment"`
 	URL       string `json:"url"`
+	Original  string `json:"original"`
 	ExpiresIn int64  `json:"expiresIn"`
 }
 
@@ -62,13 +63,17 @@ func CreateRedirectURL(w http.ResponseWriter, r *http.Request, _ httprouter.Para
 	rdb.Set(ctx, "redirector:url:"+fragment+":l", body.URL, 0).Err()
 
 	// Respond with a success message
-	w.WriteHeader(http.StatusOK)
-	response := map[string]string{
-		"fragment": fragment,
-		"url":      uri + "/" + fragment,
+	response := RedirectObject{
+		Fragment:  fragment,
+		URL:       uri + "/" + fragment,
+		Original:  body.URL,
+		ExpiresIn: body.ExpiresIn,
 	}
-	json.NewEncoder(w).Encode(response)
-	log.Printf(">> %s %s %d", body.URL, response["url"], counter)
+
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, fmt.Sprintf("Could not encode response: %v", err), http.StatusInternalServerError)
+	}
+	log.Printf(">> %s %s %d", body.URL, response.Original, counter)
 }
 
 func GetAllRedirectURLs(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -79,13 +84,14 @@ func GetAllRedirectURLs(w http.ResponseWriter, r *http.Request, _ httprouter.Par
 	}
 
 	// Respond with a list of all redirect URLs
-	w.WriteHeader(http.StatusOK)
 	response := []RedirectObject{}
 	for _, key := range keys {
 		url := rdb.Get(ctx, key).Val()
+		fragment := strings.Split(key, ":")[2]
 		response = append(response, RedirectObject{
-			Fragment:  strings.Split(key, ":")[2],
-			URL:       url,
+			Fragment:  fragment,
+			URL:       uri + "/" + fragment,
+			Original:  url,
 			ExpiresIn: -1,
 		})
 	}
